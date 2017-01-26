@@ -532,19 +532,22 @@ namespace DataCompare
         private DataTable UseTables(CompareType type)
         {
             var result = new DataTable();
-            var currentUsedTable = GetUsedTable(type); 
+            var currentUsedTable = GetUsedTable(type);
+            string value = GetSelectedValueFromCombobox(type);
 
             if (type == CompareType.Source)
             {
-                result = DBManager.UseSourceTable(currentUsedTable); // ************* here ************
+                result = DBManager.UseSourceTable(currentUsedTable, value); 
             }
             else
             {
-                result = DBManager.UseTargetTable(currentUsedTable);
+                result = DBManager.UseTargetTable(currentUsedTable, value);
             }
 
             return result;
         }
+
+        
 
         private DataTable GetUsedTable(CompareType type)
         {
@@ -711,6 +714,23 @@ namespace DataCompare
             }
 
             return DatabaseType.SqlServer;
+        }
+
+        private string GetSelectedValueFromCombobox(CompareType type)
+        {
+            var cboTables = ((type == CompareType.Source) ? _srcControls[9] : _trgControls[9]) as ComboBox;
+            string value = "";
+
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new System.Action(() =>
+                {
+                    value = cboTables.SelectedValue.ToString();
+                }
+                ));
+            }
+
+            return value;
         }
         #endregion
     }

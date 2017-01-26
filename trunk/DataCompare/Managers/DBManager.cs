@@ -3,9 +3,11 @@ using DataCompare.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DataCompare.Managers
 {
@@ -31,14 +33,23 @@ namespace DataCompare.Managers
             return RetrieveTables("TargetDB");
         }
 
-        internal static DataTable UseSourceTable(DataTable currentTable)
+        internal static DataTable UseSourceTable(DataTable currentTable, string value) // ************* here ************
         {
-            throw new NotImplementedException();
+            return UseTables(currentTable,value);
         }
 
-        internal static DataTable UseTargetTable(DataTable currentTable)
+        internal static DataTable UseTargetTable(DataTable currentTable, string value)
         {
-            throw new NotImplementedException();
+            return UseTables(currentTable, value);
+        }
+
+        private static DataTable UseTables(DataTable currentTable, string value)
+        {
+            DataRow row = currentTable.NewRow();
+            row[0] = value;
+            currentTable.Rows.Add(row);
+
+            return currentTable;
         }
 
         // ****************** private  helpers ********************************
