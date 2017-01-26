@@ -1,0 +1,16 @@
+SQL Server:
+10.2.1.115
+bioscrip
+Bioscrip123
+
+Oracle
+10.2.1.188:1521
+SID: ORCL
+amyhu
+amyhu
+
+Netezza
+172.27.50.35:5480
+DB: HAGDEV
+hhc_user
+8qcG2gz5
