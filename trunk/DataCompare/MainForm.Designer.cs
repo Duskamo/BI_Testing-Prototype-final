@@ -387,6 +387,7 @@ namespace DataCompare
             // 
             // cboTrgTableSelect
             // 
+            this.cboTrgTableSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTrgTableSelect.FormattingEnabled = true;
             this.cboTrgTableSelect.Location = new System.Drawing.Point(85, 183);
             this.cboTrgTableSelect.Name = "cboTrgTableSelect";

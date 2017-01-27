@@ -447,8 +447,7 @@ namespace DataCompare
         {
             var btn = sender as Button;
             var cboTablesSelect = (type == CompareType.Source) ? _srcControls[19] as ComboBox : _trgControls[19] as ComboBox;
-            cboTablesSelect.DataSource = null;
-
+            
             try
             {
                 if (btn.Text.Equals("Use"))
@@ -528,12 +527,14 @@ namespace DataCompare
 
             return result;
         }
-
+         //DataTable result = new DataTable();
         private DataTable UseTables(CompareType type)
         {
             var result = new DataTable();
             var currentUsedTable = GetUsedTable(type);
             string value = GetSelectedValueFromCombobox(type);
+
+
 
             if (type == CompareType.Source)
             {
@@ -557,9 +558,12 @@ namespace DataCompare
 
             for (int i = 0; i < cboTablesSelect.Items.Count; i++)
             {
+                
                 DataRow row = result.NewRow();
-                row[0] = cboTablesSelect.GetItemText(cboTablesSelect.Items[i]);
+                row["Name"] = cboTablesSelect.GetItemText(cboTablesSelect.Items[i]);
                 result.Rows.Add(row);
+                
+                Debug.WriteLine(cboTablesSelect.GetItemText(cboTablesSelect.Items[i]));
             }
 
             return result;

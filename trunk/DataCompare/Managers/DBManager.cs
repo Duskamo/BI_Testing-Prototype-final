@@ -76,7 +76,7 @@ namespace DataCompare.Managers
             foreach (var rowData in DBData.dataset)
             {
                 var row = table.NewRow();
-                row[0] = rowData;
+                row[0] = rowData.getName();
                 table.Rows.Add(row);
             }
 
