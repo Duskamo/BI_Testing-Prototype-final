@@ -6,22 +6,15 @@ using System.Threading.Tasks;
 
 namespace DataCompare.Models
 {
-    class TableInfo
+    class TableSchema
     {
         private string _Name;
         private string _Type;
-        private List<string> _Data;
 
-        public TableInfo(string colName, string colType, List<string> data)
+        public TableSchema(string colName, string colType)
         {
             setName(colName);
             setType(colType);
-            setData(data);
-        }
-
-        private void setData(List<string> data)
-        {
-            _Data = data;
         }
 
         public void setType(string colType)
@@ -42,11 +35,6 @@ namespace DataCompare.Models
         public string getType()
         {
             return _Type;
-        }
-
-        public List<string> getData()
-        {
-            return _Data;
         }
     }
 }

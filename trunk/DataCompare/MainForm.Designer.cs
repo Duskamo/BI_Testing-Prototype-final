@@ -817,6 +817,8 @@ namespace DataCompare
             // bwMapping
             // 
             this.bwMapping.WorkerReportsProgress = true;
+            this.bwMapping.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwMapping_DoWork);
+            this.bwMapping.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwMapping_RunWorkerCompleted);
             // 
             // panelConfig
             // 

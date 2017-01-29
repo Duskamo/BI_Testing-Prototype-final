@@ -168,7 +168,7 @@
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Managers\DBManager.cs" />
-    <Compile Include="Models\Tables\TableInfo.cs" />
+    <Compile Include="Models\Tables\TableSchema.cs" />
     <Compile Include="Models\Tables\Table.cs" />
     <Compile Include="Program.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>

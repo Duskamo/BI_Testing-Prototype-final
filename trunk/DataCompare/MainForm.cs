@@ -477,7 +477,20 @@ namespace DataCompare
 
         private void btnEditMapping_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            var btn = sender as Button;
+
+            dgvMappings.Rows.Clear();
+
+            if (btn.Text.Equals("Edit Mapping"))
+            {
+                bwMapping.RunWorkerAsync();
+            }
+            else
+            {
+                dgvResult.DataSource = null;
+                SetLayout(CompareType.Source, CompareStatus.Selected);
+                SetLayout(CompareType.Target, CompareStatus.Selected);
+            }
         }
 
         private void btnCompare_Click(object sender, EventArgs e)
@@ -527,14 +540,21 @@ namespace DataCompare
 
             return result;
         }
-         //DataTable result = new DataTable();
+
+        private DataTable RetrieveColumns(CompareType type, string tableName)
+        {
+            var cboTablesSelect = (type == CompareType.Source) ? _srcControls[19] as ComboBox : _trgControls[19] as ComboBox;
+            string comparingTableName = GetSelectedValueFromCombobox(cboTablesSelect);
+
+            return DBManager.RetrieveColumns(comparingTableName, tableName);
+        }
+
         private DataTable UseTables(CompareType type)
         {
+            var cboTables = ((type == CompareType.Source) ? _srcControls[9] : _trgControls[9]) as ComboBox;
             var result = new DataTable();
             var currentUsedTable = GetUsedTable(type);
-            string value = GetSelectedValueFromCombobox(type);
-
-
+            string value = GetSelectedValueFromCombobox(cboTables);
 
             if (type == CompareType.Source)
             {
@@ -690,6 +710,38 @@ namespace DataCompare
                 SetLayout(result.Key, CompareStatus.Selected);
             }
         }
+
+        private void bwMapping_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var backgroundWorker = (BackgroundWorker)sender;
+   
+            var ds = new DataSet();
+            ds.Tables.Add(RetrieveColumns(CompareType.Source, "SrcCols").Copy());
+            ds.Tables.Add(RetrieveColumns(CompareType.Target, "TrgCols").Copy());
+
+            e.Result = ds;
+            backgroundWorker.ReportProgress(100, "Done");
+        }
+
+        private void bwMapping_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MessageBox.Show(e.Error.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                var ds = e.Result as DataSet;
+                ((DataGridViewComboBoxColumn)dgvMappings.Columns[2]).DataSource = ds.Tables["TrgCols"];
+                ((DataGridViewComboBoxColumn)dgvMappings.Columns[2]).DisplayMember = "NAME";
+                ((DataGridViewComboBoxColumn)dgvMappings.Columns[2]).ValueMember = "NAME";
+
+                MappingColumns(ds, "SrcCols", "TrgCols");
+                dgvMappings.Refresh();
+
+                SetLayout(CompareType.Other, CompareStatus.Mapped);
+            }
+        }
         #endregion
 
         #region HelperMethods
@@ -720,21 +772,76 @@ namespace DataCompare
             return DatabaseType.SqlServer;
         }
 
-        private string GetSelectedValueFromCombobox(CompareType type)
+        private string GetSelectedValueFromCombobox(ComboBox cb)
         {
-            var cboTables = ((type == CompareType.Source) ? _srcControls[9] : _trgControls[9]) as ComboBox;
             string value = "";
 
             if (this.InvokeRequired)
             {
                 this.Invoke(new System.Action(() =>
                 {
-                    value = cboTables.SelectedValue.ToString();
+                    value = cb.SelectedValue.ToString();
                 }
                 ));
             }
 
             return value;
+        }
+
+        private void MappingColumns(DataSet ds, string src, string trg)
+        {
+            var mapping = new DataTable();
+            mapping.Columns.Add("Selected", Type.GetType("System.Boolean"));
+            mapping.Columns.Add("SourceColumns", ds.Tables[src].Columns["NAME"].DataType);
+            mapping.Columns.Add("TargetColumns", ds.Tables[trg].Columns["NAME"].DataType);
+            mapping.Columns.Add("Keys", Type.GetType("System.Boolean"));
+            mapping.BeginLoadData();
+            for (int i = 0; i < ds.Tables[src].Rows.Count; i++)
+            {
+                bool isTypeDiff = false;
+
+                var newRow = mapping.NewRow();
+                newRow[0] = false;
+                newRow[1] = ds.Tables[src].Rows[i]["NAME"];
+                newRow[3] = false;
+
+                for (int j = 0; j < ds.Tables[trg].Rows.Count; j++)
+                {
+                    string srcCol = ds.Tables[src].Rows[i].ItemArray[0].ToString().Trim().ToLower();
+                    string trgCol = ds.Tables[trg].Rows[j].ItemArray[0].ToString().Trim().ToLower();
+
+                    if (srcCol == trgCol)
+                    {
+                        newRow[0] = true;
+                        newRow[2] = ds.Tables[trg].Rows[j]["NAME"];
+                        break;
+                    }
+                    if (srcCol.Split('[')[0] == trgCol.Split('[')[0] && trgCol.Split('[')[1].Contains("gbq"))
+                    {
+                        newRow[0] = true;
+                        newRow[2] = ds.Tables[trg].Rows[j]["NAME"];
+                        break;
+                    }
+                    if (srcCol.Split('[')[0] == trgCol.Split('[')[0] && !trgCol.Split('[')[1].Contains("gbq"))
+                    {
+                        newRow[0] = true;
+                        newRow[2] = ds.Tables[trg].Rows[j]["NAME"];
+                        isTypeDiff = true;
+                        break;
+                    }
+                }
+                mapping.Rows.Add(newRow);
+                dgvMappings.Rows.Add(newRow[0], newRow[1], newRow[2], newRow[3]);
+
+                var cboCell = dgvMappings.Rows[dgvMappings.Rows.Count - 1].Cells[2] as DataGridViewComboBoxCell;
+                cboCell.FlatStyle = FlatStyle.Flat;
+                if (isTypeDiff)
+                {
+                    cboCell.Style.BackColor = Color.LightPink;
+                }
+            }
+
+            mapping.EndLoadData();
         }
         #endregion
     }

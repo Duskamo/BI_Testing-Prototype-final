@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DataCompare.Enums;
+using DataCompare.Models.Tables;
 
 namespace DataCompare.Managers
 {
@@ -33,7 +35,29 @@ namespace DataCompare.Managers
             return RetrieveTables("TargetDB");
         }
 
-        internal static DataTable UseSourceTable(DataTable currentTable, string value) // ************* here ************
+        internal static DataTable RetrieveColumns(string comparingTableName, string tableName)
+        {
+            DataTable table = new DataTable(tableName);
+
+            table.Columns.Add("NAME");
+
+            foreach (Table t in DBData.dataset)
+            {
+                if (t.getName().Equals(comparingTableName))
+                {
+                    foreach(DataColumn col in t.getTable().Columns)
+                    {
+                        DataRow row = table.NewRow();
+                        row["NAME"] = col.ColumnName + " [ " + col.DataType.ToString() + " ]";
+                        table.Rows.Add(row);
+                    }
+                }
+            }
+
+            return table;
+        }
+
+        internal static DataTable UseSourceTable(DataTable currentTable, string value) 
         {
             return UseTables(currentTable,value);
         }
