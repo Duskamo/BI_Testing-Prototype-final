@@ -33,7 +33,7 @@ namespace DataCompare.Utils
                 new TableSchema("job title", "s"),
                 new TableSchema("salary", "s"),
                 new TableSchema("department", "s") },
-                new string[,] { { "1","dustin","23","dope lane" }, { "2", "mary", "28", "pretty boss avenue" }, { "3", "sudeep", "25", "pimp blvd" }, { "4", "travis", "24", "thug street" }, { "5", "job", "27", "machine rd" } }),
+                new string[,] { { "1","product owner","1 mill","the best" }, { "2", "senior exec", "1 mill", "oh yeah" }, { "3", "famous actor", "1 mill", "super acting" }, { "4", "CIO", "everyone at 1 mill", "IT best" }, { "5", "CEO", "1 mill again", "machine department" } }),
 
             new Table("Table4", new List<TableSchema>() {
                 new TableSchema("id", "i"),

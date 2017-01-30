@@ -13,6 +13,8 @@ using DataCompare.Controls;
 using DataCompare.Enums;
 using Google.Cloud.BigQuery.V2;
 using DataCompare.Managers;
+using DataCompare.Models;
+using DataCompare.Utils;
 
 namespace DataCompare
 {
@@ -495,7 +497,20 @@ namespace DataCompare
 
         private void btnCompare_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            // set Result Column Headers in datatable format
+            DataTable testResultDT = setResultColumnHeaders();
+
+            // get list of paired source and target tables to be compared 
+            List<TestResult> testResultList = RetrieveComparedTableList();
+
+            // go through each paired item and run all three tests, load in datatable format
+            testResultList = CompareTables(testResultList);
+            testResultDT = ReadResultsToDataTable(testResultList,testResultDT); 
+
+            // output datatable results to data grid view
+            dgvResult.DataSource = null;
+            dgvResult.DataSource = testResultDT;
+            dgvResult.Refresh();
         }
 
         private void btnExport_Click(object sender, EventArgs e)
@@ -549,6 +564,74 @@ namespace DataCompare
             return DBManager.RetrieveColumns(comparingTableName, tableName);
         }
 
+        private List<TestResult> RetrieveComparedTableList()
+        {
+            var cbSource = _srcControls[19] as ComboBox;
+            var cbTarget = _trgControls[19] as ComboBox;
+
+            List<TestResult> testResults = new List<TestResult>();
+            List<string> sourceValues = GetAllValuesFromCombobox(cbSource);
+            List<string> targetValues = GetAllValuesFromCombobox(cbTarget);
+
+            for (int i = 0; i < sourceValues.Count; i++)
+            {
+                TestResult tr = new TestResult();
+                tr.SourceTableName = sourceValues[i];
+                tr.TargetTableName = targetValues[i];
+
+                testResults.Add(tr);
+            }
+
+            return testResults;
+        }
+
+        private List<TestResult> CompareTables(List<TestResult> testResultList)
+        {
+            List<TestResult> finalResults = new List<TestResult>();
+
+            for (int i = 0; i < testResultList.Count; i++)
+            {
+                finalResults.Add(TestCaseRunner.RunRowCountTestCase(testResultList[i]));
+                finalResults.Add(TestCaseRunner.RunSchemaTestCase(testResultList[i]));
+                finalResults.Add(TestCaseRunner.RunEqualityTestCase(testResultList[i]));
+            }
+
+            return finalResults;
+        }
+
+        private DataTable ReadResultsToDataTable(List<TestResult> testResultList, DataTable testResultDT) // ************ here ***********
+        {
+            foreach (TestResult tr in testResultList)
+            {
+                DataRow row = testResultDT.NewRow();
+
+                row["TestDate"] = tr.TestDate;
+                row["TestCaseName"] = tr.TestCaseName;
+                row["SourceTableName"] = tr.SourceTableName;
+                row["TargetTableName"] = tr.TargetTableName;
+                row["TestCaseDescription"] = tr.TestCaseDescription;
+                row["Result"] = tr.Result;
+
+                testResultDT.Rows.Add(row);
+            }
+
+            return testResultDT;
+        }
+
+        private DataTable setResultColumnHeaders()
+        {
+            DataTable resultsDT = new DataTable();
+
+            resultsDT.Columns.Add("TestDate");
+            resultsDT.Columns.Add("TestCaseName");
+            resultsDT.Columns.Add("SourceTableName");
+            resultsDT.Columns.Add("TargetTableName");
+            resultsDT.Columns.Add("TestCaseDescription");
+            resultsDT.Columns.Add("Result");
+
+            return resultsDT;
+        }
+
         private DataTable UseTables(CompareType type)
         {
             var cboTables = ((type == CompareType.Source) ? _srcControls[9] : _trgControls[9]) as ComboBox;
@@ -582,8 +665,6 @@ namespace DataCompare
                 DataRow row = result.NewRow();
                 row["Name"] = cboTablesSelect.GetItemText(cboTablesSelect.Items[i]);
                 result.Rows.Add(row);
-                
-                Debug.WriteLine(cboTablesSelect.GetItemText(cboTablesSelect.Items[i]));
             }
 
             return result;
@@ -786,6 +867,18 @@ namespace DataCompare
             }
 
             return value;
+        }
+
+        private List<string> GetAllValuesFromCombobox(ComboBox cb)
+        {
+            List<string> cbValues = new List<string>();
+
+            for (int i = 0; i < cb.Items.Count; i++)
+            {
+                cbValues.Add(cb.GetItemText(cb.Items[i]));
+            }
+
+            return cbValues;
         }
 
         private void MappingColumns(DataSet ds, string src, string trg)
