@@ -144,6 +144,9 @@ namespace DataCompare
                 case CompareStatus.Selected:
                     SetLayoutSelected(oper);
                     break;
+                case CompareStatus.Used:
+                    SetLayoutSelected(oper);
+                    break;
                 case CompareStatus.Mapped:
                     SetLayoutMapped(oper);
                     break;
@@ -152,7 +155,7 @@ namespace DataCompare
                     break;
             }
 
-            _compControls[0].Enabled = (_srcStatus == CompareStatus.Selected && _trgStatus == CompareStatus.Selected);
+            _compControls[0].Enabled = (_srcStatus == CompareStatus.Used && _trgStatus == CompareStatus.Used);
         }
 
         private void SetLayoutInit(List<Control> oper)
@@ -850,7 +853,7 @@ namespace DataCompare
                 cboTablesSelected.ValueMember = "Name";
                 cboTablesSelected.DataSource = result.Value;
                 AdjustComboBoxWidth(cboTablesSelected);
-                SetLayout(result.Key, CompareStatus.Selected);
+                SetLayout(result.Key, CompareStatus.Used);
             }
         }
 
