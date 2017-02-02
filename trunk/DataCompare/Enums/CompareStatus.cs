@@ -6,6 +6,7 @@
         Connected = 1,
         Selected = 2,
         Mapped = 3,
-        Compared = 4
+        Compared = 4,
+        Used = 5
     }
 }

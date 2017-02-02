@@ -33,7 +33,7 @@ namespace DataCompare
         private bool[] _diffColValue;
         private bool[] _diffColType;
         private int _keyNumber;
-        private int _columnCount;
+        private int _columnCount = 6;
         #endregion
 
         #region Construct
@@ -278,6 +278,7 @@ namespace DataCompare
         {
             int[] enable = { 9, 10 };
             int[] disable = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 13 };
+
             foreach (int i in enable)
             {
                 oper[i].Enabled = true;
@@ -348,6 +349,64 @@ namespace DataCompare
             catch (Exception)
             {
                 // ignored
+            }
+        }
+
+        private void HighlightCells()
+        {
+            EnableCompControl(false);
+
+            foreach (DataGridViewColumn col in dgvResult.Columns)
+            {
+                col.SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+
+            foreach (DataGridViewRow row in dgvResult.Rows)
+            {
+                for (int i = 0; i < _columnCount; i++)
+                {
+                    if (row.Cells[_columnCount-1].Value.Equals("Pass"))
+                    {
+                        HighlightCell(row, i, Color.LightGreen);
+                    } else if (row.Cells[_columnCount - 1].Value.Equals("Fail"))
+                    {
+                        HighlightCell(row, i, Color.LightPink);
+                    } else
+                    {
+                        HighlightCell(row, i, Color.LightYellow);
+                    }
+                }
+
+                if (row.Index % 500 == 0)
+                {
+                    Application.DoEvents();
+                }
+            }
+
+            EnableCompControl(true);
+        }
+
+        private void HighlightCell(DataGridViewRow row, int index, Color color)
+        {
+            row.Cells[index].Style.BackColor = color;
+        }
+
+        private void EnableCompControl(bool isEnable)
+        {
+            foreach (var c in _compControls)
+            {
+                c.Enabled = isEnable;
+            }
+        }
+
+        private void AdjustCellWidth()
+        {
+            foreach (DataGridViewRow row in dgvResult.Rows)
+            {
+                for (int j = 0; j < row.Cells.Count; j++)
+                {
+                    //row.Cells[j]
+                }
             }
         }
         #endregion
@@ -495,7 +554,7 @@ namespace DataCompare
             }
         }
 
-        private void btnCompare_Click(object sender, EventArgs e)
+        private void btnCompare_Click(object sender, EventArgs e) // ************** here **************
         {
             // set Result Column Headers in datatable format
             DataTable testResultDT = setResultColumnHeaders();
@@ -511,6 +570,9 @@ namespace DataCompare
             dgvResult.DataSource = null;
             dgvResult.DataSource = testResultDT;
             dgvResult.Refresh();
+
+            HighlightCells();
+            dgvResult.AutoResizeColumns();
         }
 
         private void btnExport_Click(object sender, EventArgs e)
@@ -599,7 +661,7 @@ namespace DataCompare
             return finalResults;
         }
 
-        private DataTable ReadResultsToDataTable(List<TestResult> testResultList, DataTable testResultDT) // ************ here ***********
+        private DataTable ReadResultsToDataTable(List<TestResult> testResultList, DataTable testResultDT) 
         {
             foreach (TestResult tr in testResultList)
             {
