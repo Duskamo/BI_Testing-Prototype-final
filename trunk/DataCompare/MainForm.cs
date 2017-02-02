@@ -563,7 +563,7 @@ namespace DataCompare
             DataTable testResultDT = setResultColumnHeaders();
 
             // get list of paired source and target tables to be compared 
-            List<TestResult> testResultList = RetrieveComparedTableList();
+            List<TestResults> testResultList = RetrieveComparedTableList();
 
             // go through each paired item and run all three tests, load in datatable format
             testResultList = CompareTables(testResultList);
@@ -629,18 +629,18 @@ namespace DataCompare
             return DBManager.RetrieveColumns(comparingTableName, tableName);
         }
 
-        private List<TestResult> RetrieveComparedTableList()
+        private List<TestResults> RetrieveComparedTableList()
         {
             var cbSource = _srcControls[19] as ComboBox;
             var cbTarget = _trgControls[19] as ComboBox;
 
-            List<TestResult> testResults = new List<TestResult>();
+            List<TestResults> testResults = new List<TestResults>();
             List<string> sourceValues = GetAllValuesFromCombobox(cbSource);
             List<string> targetValues = GetAllValuesFromCombobox(cbTarget);
 
             for (int i = 0; i < sourceValues.Count; i++)
             {
-                TestResult tr = new TestResult();
+                TestResults tr = new TestResults();
                 tr.SourceTableName = sourceValues[i];
                 tr.TargetTableName = targetValues[i];
 
@@ -650,9 +650,9 @@ namespace DataCompare
             return testResults;
         }
 
-        private List<TestResult> CompareTables(List<TestResult> testResultList)
+        private List<TestResults> CompareTables(List<TestResults> testResultList)
         {
-            List<TestResult> finalResults = new List<TestResult>();
+            List<TestResults> finalResults = new List<TestResults>();
 
             for (int i = 0; i < testResultList.Count; i++)
             {
@@ -664,9 +664,9 @@ namespace DataCompare
             return finalResults;
         }
 
-        private DataTable ReadResultsToDataTable(List<TestResult> testResultList, DataTable testResultDT) 
+        private DataTable ReadResultsToDataTable(List<TestResults> testResultList, DataTable testResultDT) 
         {
-            foreach (TestResult tr in testResultList)
+            foreach (TestResults tr in testResultList)
             {
                 DataRow row = testResultDT.NewRow();
 

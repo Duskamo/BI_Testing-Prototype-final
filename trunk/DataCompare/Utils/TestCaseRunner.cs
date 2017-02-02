@@ -9,9 +9,9 @@ namespace DataCompare.Utils
 {
     class TestCaseRunner
     {
-        public static TestResult RunRowCountTestCase(TestResult testResult)
+        public static TestResults RunRowCountTestCase(TestResults testResult)
         {
-            TestResult newResult = new TestResult();
+            TestResults newResult = new TestResults();
 
             newResult.TestDate = DateTime.Now.ToShortDateString();
             newResult.TestCaseName = TestCaseInfo.RowCountTestName(testResult.TargetTableName);
@@ -23,9 +23,9 @@ namespace DataCompare.Utils
             return newResult;
         }
 
-        public static TestResult RunSchemaTestCase(TestResult testResult)
+        public static TestResults RunSchemaTestCase(TestResults testResult)
         {
-            TestResult newResult = new TestResult();
+            TestResults newResult = new TestResults();
 
             newResult.TestDate = DateTime.Now.ToShortDateString();
             newResult.TestCaseName = TestCaseInfo.SchemaTestName(testResult.TargetTableName);
@@ -37,9 +37,9 @@ namespace DataCompare.Utils
             return newResult;
         }
 
-        public static TestResult RunEqualityTestCase(TestResult testResult)
+        public static TestResults RunEqualityTestCase(TestResults testResult)
         {
-            TestResult newResult = new TestResult();
+            TestResults newResult = new TestResults();
 
             newResult.TestDate = DateTime.Now.ToShortDateString();
             newResult.TestCaseName = TestCaseInfo.EqualityTestName(testResult.TargetTableName);
